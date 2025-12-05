@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db/prisma'
+import { getMockData } from '@/lib/data/mock-data'
 import { getAggregationsSchema } from '@/lib/validations/schemas'
 import { sortAggregations, paginateArray } from '@/lib/utils/calculations'
 import { ZodError } from 'zod'
@@ -33,83 +33,22 @@ export async function GET(request: NextRequest) {
     // Валидация
     const validated = getAggregationsSchema.parse(params)
 
-    // Строим запрос
-    const where: any = {
-      entityType: validated.entityType,
-    }
+    // Получаем моковые данные
+    let aggregations = getMockData(validated.entityType)
 
+    // Применяем фильтры
     if (validated.filters) {
       if (validated.filters.status) {
-        where.status = validated.filters.status
+        aggregations = aggregations.filter((agg) => agg.status === validated.filters!.status)
       }
 
       if (validated.filters.search) {
-        where.OR = [
-          { entityCode: { contains: validated.filters.search, mode: 'insensitive' } },
-          { entityName: { contains: validated.filters.search, mode: 'insensitive' } },
-        ]
-      }
-    }
-
-    // Получаем агрегации
-    let aggregations = await prisma.aggregation.findMany({
-      where,
-      orderBy: { calculatedAt: 'desc' },
-    })
-
-    // Дополнительная фильтрация для SKU
-    if (validated.entityType === 'sku' && validated.filters) {
-      const skuIds = new Set<string>()
-
-      if (validated.filters.category || validated.filters.supplier || validated.filters.abcClass) {
-        const skuWhere: any = {}
-        if (validated.filters.category) skuWhere.category = validated.filters.category
-        if (validated.filters.supplier) skuWhere.supplier = validated.filters.supplier
-        if (validated.filters.abcClass) skuWhere.abcClass = validated.filters.abcClass
-
-        const skus = await prisma.sKU.findMany({
-          where: skuWhere,
-          select: { id: true },
-        })
-
-        skus.forEach((sku) => skuIds.add(sku.id))
-        aggregations = aggregations.filter((agg) => skuIds.has(agg.entityId))
-      }
-    }
-
-    // Фильтрация по складу/зоне
-    if (validated.filters?.warehouseId || validated.filters?.zoneId) {
-      // Для зон и локаций нужно проверить иерархию
-      if (validated.entityType === 'zone' && validated.filters.warehouseId) {
-        const zones = await prisma.zone.findMany({
-          where: { warehouseId: validated.filters.warehouseId },
-          select: { id: true },
-        })
-        const zoneIds = new Set(zones.map((z) => z.id))
-        aggregations = aggregations.filter((agg) => zoneIds.has(agg.entityId))
-      }
-
-      if (validated.entityType === 'location') {
-        if (validated.filters.zoneId) {
-          const locations = await prisma.location.findMany({
-            where: { zoneId: validated.filters.zoneId },
-            select: { id: true },
-          })
-          const locationIds = new Set(locations.map((l) => l.id))
-          aggregations = aggregations.filter((agg) => locationIds.has(agg.entityId))
-        } else if (validated.filters.warehouseId) {
-          const zones = await prisma.zone.findMany({
-            where: { warehouseId: validated.filters.warehouseId },
-            select: { id: true },
-          })
-          const zoneIds = zones.map((z) => z.id)
-          const locations = await prisma.location.findMany({
-            where: { zoneId: { in: zoneIds } },
-            select: { id: true },
-          })
-          const locationIds = new Set(locations.map((l) => l.id))
-          aggregations = aggregations.filter((agg) => locationIds.has(agg.entityId))
-        }
+        const search = validated.filters.search.toLowerCase()
+        aggregations = aggregations.filter(
+          (agg) =>
+            agg.entityCode.toLowerCase().includes(search) ||
+            agg.entityName.toLowerCase().includes(search)
+        )
       }
     }
 
