@@ -482,13 +482,13 @@ export default function DashboardPage() {
               icon="trending"
               color="yellow"
             />
-            <KPICard
+            {/* <KPICard
               title="Без данных"
               value={kpiData.grayCount}
               subtitle="Нет вместимости"
               icon="package"
               color="gray"
-            />
+            /> */}
             <KPICard
               title="Последнее обновление"
               value={formatDistanceToNow(new Date(kpiData.lastUpdate), {

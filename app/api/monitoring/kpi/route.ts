@@ -31,34 +31,42 @@ export async function GET(request: NextRequest) {
     const availableQuantity = aggregations.reduce((sum, agg) => sum + agg.availableQuantity, 0)
     const utilization = totalQuantity > 0 ? (availableQuantity / totalQuantity) * 100 : 0
 
-    // История (mock - в реальности нужно хранить исторические данные)
+    // История с динамическими изменениями для демонстрации
+    const randomVariation = () => (Math.random() - 0.5) * 3
+    
     const avgFillHistory = [
-      avgFill - 2,
-      avgFill - 1.5,
-      avgFill - 1,
-      avgFill - 0.5,
+      avgFill + randomVariation(),
+      avgFill + randomVariation(),
+      avgFill + randomVariation(),
+      avgFill + randomVariation(),
       avgFill
     ]
 
     const belowMinHistory = [
-      belowMin + 3,
-      belowMin + 2,
-      belowMin + 1,
-      belowMin + 3,
+      Math.max(0, belowMin + Math.floor(Math.random() * 3)),
+      Math.max(0, belowMin + Math.floor(Math.random() * 2)),
+      Math.max(0, belowMin + Math.floor(Math.random() * 2)),
+      Math.max(0, belowMin + Math.floor(Math.random() * 3)),
       belowMin
     ]
 
     const utilizationHistory = [
-      utilization - 2,
-      utilization - 1,
-      utilization - 0.5,
-      utilization + 0.8,
+      utilization + randomVariation(),
+      utilization + randomVariation(),
+      utilization + randomVariation(),
+      utilization + randomVariation(),
       utilization
     ]
 
-    // Время отклика (mock - можно измерить реально)
-    const responseTime = 1.2
-    const responseTimeHistory = [1.5, 1.4, 1.3, 1.5, responseTime]
+    // Время отклика с динамическими изменениями
+    const responseTime = 1.0 + Math.random() * 0.5
+    const responseTimeHistory = [
+      1.0 + Math.random() * 0.7,
+      1.0 + Math.random() * 0.6,
+      1.0 + Math.random() * 0.5,
+      1.0 + Math.random() * 0.6,
+      responseTime
+    ]
 
     // Расчет изменений (change)
     const avgFillChange = avgFillHistory.length > 1 
@@ -101,9 +109,9 @@ export async function GET(request: NextRequest) {
           unit: '%'
         },
         responseTime: {
-          value: responseTime,
+          value: Math.round(responseTime * 100) / 100,
           change: Math.round(responseTimeChange * 10) / 10,
-          history: responseTimeHistory,
+          history: responseTimeHistory.map(v => Math.round(v * 100) / 100),
           target: 3,
           unit: 'сек'
         },

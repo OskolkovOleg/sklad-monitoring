@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { TrendingUp, TrendingDown, Minus, AlertTriangle, Loader2, RefreshCw } from 'lucide-react'
 
 interface KPIMetric {
@@ -29,6 +30,7 @@ interface Alert {
 }
 
 export default function MonitoringPage() {
+  const router = useRouter()
   const [kpiData, setKpiData] = useState<KPIData | null>(null)
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [loading, setLoading] = useState(true)
@@ -37,8 +39,8 @@ export default function MonitoringPage() {
   useEffect(() => {
     fetchData()
     
-    // Автообновление каждые 30 секунд
-    const interval = setInterval(fetchData, 30000)
+    // Автообновление каждые 3 секунды для демонстрации
+    const interval = setInterval(fetchData, 3000)
     return () => clearInterval(interval)
   }, [])
 
@@ -83,6 +85,19 @@ export default function MonitoringPage() {
     if (diffMins < 60) return `${diffMins} мин назад`
     const diffHours = Math.floor(diffMins / 60)
     return `${diffHours} ч назад`
+  }
+
+  const handleViewAlert = (alert: Alert) => {
+    // Переход на дашборд с нужными фильтрами
+    const params = new URLSearchParams()
+    
+    if (alert.entityType === 'warehouse' && alert.entityId) {
+      params.set('warehouseId', alert.entityId)
+    } else if (alert.entityType === 'zone' && alert.entityId) {
+      params.set('zoneId', alert.entityId)
+    }
+    
+    router.push(`/dashboard?${params.toString()}`)
   }
 
   if (loading) {
@@ -235,8 +250,8 @@ export default function MonitoringPage() {
               <span className="text-sm text-gray-500">Частота обновления</span>
               <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">✓ OK</span>
             </div>
-            <div className="text-2xl font-bold text-gray-900">5 мин</div>
-            <div className="text-xs text-gray-400 mt-1">Целевое значение: ≥ каждые 5 мин</div>
+            <div className="text-2xl font-bold text-gray-900">3 сек</div>
+            <div className="text-xs text-gray-400 mt-1">Целевое значение: ≥ каждые 3 сек</div>
           </div>
         </div>
       </div>
@@ -273,7 +288,12 @@ export default function MonitoringPage() {
                     {formatTimeAgo(alert.time)}
                   </p>
                 </div>
-                <button className="text-sm text-[#00D632] hover:underline">Просмотреть</button>
+                <button 
+                  onClick={() => handleViewAlert(alert)}
+                  className="text-sm text-[#00D632] hover:underline whitespace-nowrap"
+                >
+                  Просмотреть
+                </button>
               </div>
             ))
           )}
