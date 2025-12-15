@@ -284,8 +284,8 @@ export class AggregationService {
       const fillPercentage = calculateFillPercentage(totalQuantity, location.capacity ?? undefined)
       const status = calculateStatus(
         totalQuantity,
-        norm?.minLevel,
-        norm?.targetLevel,
+        norm?.minLevel ?? undefined,
+        norm?.targetLevel ?? undefined,
         location.capacity ?? undefined
       )
 
@@ -358,8 +358,8 @@ export class AggregationService {
       const norm = sku.norms[0]
       const status = calculateStatus(
         totalQuantity,
-        norm?.minLevel,
-        norm?.targetLevel
+        norm?.minLevel ?? undefined,
+        norm?.targetLevel ?? undefined
       )
 
       await prisma.aggregation.upsert({

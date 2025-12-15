@@ -55,7 +55,7 @@ export const authConfig: AuthOptions = {
           name: user.name,
           email: user.email,
           role: user.role,
-          department: user.department,
+          department: user.department ?? undefined,
           image: user.image,
         }
       },

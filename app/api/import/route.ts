@@ -161,31 +161,38 @@ async function processInventoryImport(
       }
 
       // Создаем или обновляем инвентарь
-      await prisma.inventory.upsert({
+      const existingInventory = await prisma.inventory.findFirst({
         where: {
-          skuId_locationId_batchNumber: {
-            skuId: sku.id,
-            locationId: location.id,
-            batchNumber: validated.batchNumber || null,
-          },
-        },
-        update: {
-          quantity: validated.quantity,
-          reservedQty: validated.reservedQty || 0,
-          unavailableQty: validated.unavailableQty || 0,
-          status: validated.status || 'available',
-          lastUpdated: new Date(),
-        },
-        create: {
           skuId: sku.id,
           locationId: location.id,
-          quantity: validated.quantity,
-          reservedQty: validated.reservedQty || 0,
-          unavailableQty: validated.unavailableQty || 0,
-          status: validated.status || 'available',
-          batchNumber: validated.batchNumber || null,
+          batchNumber: validated.batchNumber ?? null,
         },
       })
+
+      if (existingInventory) {
+        await prisma.inventory.update({
+          where: { id: existingInventory.id },
+          data: {
+            quantity: validated.quantity,
+            reservedQty: validated.reservedQty || 0,
+            unavailableQty: validated.unavailableQty || 0,
+            status: validated.status || 'available',
+            lastUpdated: new Date(),
+          },
+        })
+      } else {
+        await prisma.inventory.create({
+          data: {
+            skuId: sku.id,
+            locationId: location.id,
+            quantity: validated.quantity,
+            reservedQty: validated.reservedQty || 0,
+            unavailableQty: validated.unavailableQty || 0,
+            status: validated.status || 'available',
+            batchNumber: validated.batchNumber ?? null,
+          },
+        })
+      }
 
       onSuccess()
     } catch (error: any) {
