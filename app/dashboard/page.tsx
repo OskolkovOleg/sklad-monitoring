@@ -143,7 +143,18 @@ export default function DashboardPage() {
         params.append('parentId', parentId)
       }
 
-      console.log('[Drill-Down] Fetching:', { level: currentEntityType, parentId, drillDownPath })
+      // Добавляем фильтры
+      if (filters.search) params.append('search', filters.search)
+      if (filters.category) params.append('category', filters.category)
+      if (filters.supplier) params.append('supplier', filters.supplier)
+      if (filters.abcClass) params.append('abcClass', filters.abcClass)
+      if (filters.status) params.append('status', filters.status)
+
+      // Добавляем сортировку
+      params.append('sortField', sort.field)
+      params.append('sortOrder', sort.order)
+
+      console.log('[Drill-Down] Fetching:', { level: currentEntityType, parentId, filters, sort })
       const response = await fetch(`/api/dashboard/bars?${params}`)
       const data = await response.json()
       console.log('[Drill-Down] Response:', data)
@@ -174,6 +185,17 @@ export default function DashboardPage() {
       if (parentId) {
         params.append('parentId', parentId)
       }
+
+      // Добавляем фильтры
+      if (filters.search) params.append('search', filters.search)
+      if (filters.category) params.append('category', filters.category)
+      if (filters.supplier) params.append('supplier', filters.supplier)
+      if (filters.abcClass) params.append('abcClass', filters.abcClass)
+      if (filters.status) params.append('status', filters.status)
+
+      // Добавляем сортировку
+      params.append('sortField', sort.field)
+      params.append('sortOrder', sort.order)
 
       const response = await fetch(`/api/dashboard/bars?${params}`)
       const data = await response.json()
