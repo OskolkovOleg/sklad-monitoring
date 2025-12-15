@@ -133,8 +133,8 @@ export async function GET(request: NextRequest) {
 
         let status = 'gray'
         if (totalCapacity > 0) {
-          if (fillPercentage > 90) status = 'red'
-          else if (fillPercentage > 75) status = 'yellow'
+          if (fillPercentage >= redThreshold) status = 'red'
+          else if (fillPercentage >= yellowThreshold) status = 'yellow'
           else status = 'green'
         }
 
@@ -196,8 +196,8 @@ export async function GET(request: NextRequest) {
 
         let status = 'gray'
         if (totalCapacity > 0) {
-          if (fillPercentage > 90) status = 'red'
-          else if (fillPercentage > 75) status = 'yellow'
+          if (fillPercentage >= redThreshold) status = 'red'
+          else if (fillPercentage >= yellowThreshold) status = 'yellow'
           else status = 'green'
         }
 
