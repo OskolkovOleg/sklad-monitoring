@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "append_css",
+			"type": "shell",
+			"command": "echo",
+			"args": [
+				"app/globals.css",
+				"\n@keyframes slideInRight {\n  from {\n    transform: translateX(100%);\n  }\n  to {\n    transform: translateX(0);\n  }\n}\n\n.slide-in-right {\n  animation: slideInRight 0.3s ease-out forwards;\n}\n"
+			],
+			"problemMatcher": [],
+			"group": "edit"
+		}
+	]
+}
