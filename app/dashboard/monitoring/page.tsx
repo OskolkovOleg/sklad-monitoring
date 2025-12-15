@@ -1,95 +1,162 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { TrendingUp, TrendingDown, Minus, AlertTriangle } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus, AlertTriangle, Loader2, RefreshCw } from 'lucide-react'
 
 interface KPIMetric {
-  id: string
-  name: string
   value: number
   unit: string
   change: number
-  status: 'up' | 'down' | 'stable'
   target: number
   history: number[]
 }
 
+interface KPIData {
+  avgFillPercentage: KPIMetric
+  belowMinCount: KPIMetric
+  utilizationRate: KPIMetric
+  responseTime: KPIMetric
+  lastUpdate: string
+}
+
+interface Alert {
+  id: string
+  severity: 'high' | 'medium' | 'low'
+  message: string
+  time: string
+  entityType: string
+  entityId: string | null
+}
+
 export default function MonitoringPage() {
-  const [metrics, setMetrics] = useState<KPIMetric[]>([
+  const [kpiData, setKpiData] = useState<KPIData | null>(null)
+  const [alerts, setAlerts] = useState<Alert[]>([])
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+
+  useEffect(() => {
+    fetchData()
+    
+    // Автообновление каждые 30 секунд
+    const interval = setInterval(fetchData, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const fetchData = async () => {
+    try {
+      const [kpiResponse, alertsResponse] = await Promise.all([
+        fetch('/api/monitoring/kpi'),
+        fetch('/api/monitoring/alerts')
+      ])
+
+      const kpiResult = await kpiResponse.json()
+      const alertsResult = await alertsResponse.json()
+
+      if (kpiResult.data) setKpiData(kpiResult.data)
+      if (alertsResult.data) setAlerts(alertsResult.data)
+    } catch (error) {
+      console.error('Error fetching monitoring data:', error)
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+    fetchData()
+  }
+
+  const getStatus = (metric: KPIMetric) => {
+    if (metric.change > 0) return 'up'
+    if (metric.change < 0) return 'down'
+    return 'stable'
+  }
+
+  const formatTimeAgo = (timeStr: string) => {
+    const time = new Date(timeStr)
+    const now = new Date()
+    const diffMs = now.getTime() - time.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    
+    if (diffMins < 1) return 'только что'
+    if (diffMins < 60) return `${diffMins} мин назад`
+    const diffHours = Math.floor(diffMins / 60)
+    return `${diffHours} ч назад`
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-12 h-12 text-[#00D632] animate-spin" />
+      </div>
+    )
+  }
+
+  if (!kpiData) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">Ошибка загрузки данных</p>
+      </div>
+    )
+  }
+
+  const metrics = [
     {
       id: '1',
       name: 'Средняя заполненность складов',
-      value: 43.8,
-      unit: '%',
-      change: 2.5,
-      status: 'down',
-      target: 70,
-      history: [45, 46, 44, 45, 43.8],
+      ...kpiData.avgFillPercentage,
+      status: getStatus(kpiData.avgFillPercentage)
     },
     {
       id: '2',
       name: 'Количество позиций ниже минимума',
-      value: 12,
-      unit: 'шт',
-      change: -3,
-      status: 'up',
-      target: 5,
-      history: [15, 14, 13, 15, 12],
+      ...kpiData.belowMinCount,
+      status: getStatus(kpiData.belowMinCount)
     },
     {
       id: '3',
       name: 'Коэффициент использования',
-      value: 87.2,
-      unit: '%',
-      change: 1.8,
-      status: 'up',
-      target: 85,
-      history: [85, 86, 85.5, 86.8, 87.2],
+      ...kpiData.utilizationRate,
+      status: getStatus(kpiData.utilizationRate)
     },
     {
       id: '4',
       name: 'Время отклика системы',
-      value: 1.2,
-      unit: 'сек',
-      change: -0.3,
-      status: 'up',
-      target: 3,
-      history: [1.5, 1.4, 1.3, 1.5, 1.2],
-    },
-  ])
-
-  const alerts = [
-    {
-      id: '1',
-      severity: 'high',
-      message: 'Зона А-1: остаток ниже минимального уровня на 15%',
-      time: new Date(Date.now() - 300000),
-    },
-    {
-      id: '2',
-      severity: 'medium',
-      message: 'Склад №2: заполненность превысила 95%',
-      time: new Date(Date.now() - 600000),
-    },
-    {
-      id: '3',
-      severity: 'low',
-      message: 'Обновление справочника SKU завершено',
-      time: new Date(Date.now() - 900000),
+      ...kpiData.responseTime,
+      status: getStatus(kpiData.responseTime)
     },
   ]
 
   return (
     <div className="space-y-6">
       {/* Заголовок */}
-      <div className="flex items-center gap-3">
-        <div className="p-3 bg-[#00D632] rounded-lg">
-          <TrendingUp className="w-6 h-6 text-white" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-[#00D632] rounded-lg">
+            <TrendingUp className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Мониторинг KPI</h1>
+            <p className="text-sm text-gray-500">
+              Ключевые показатели эффективности системы
+              {kpiData.lastUpdate && (
+                <span className="ml-2">
+                  • Обновлено: {formatTimeAgo(kpiData.lastUpdate)}
+                </span>
+              )}
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Мониторинг KPI</h1>
-          <p className="text-sm text-gray-500">Ключевые показатели эффективности системы</p>
-        </div>
+
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-all disabled:opacity-50"
+        >
+          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+          Обновить
+        </button>
       </div>
 
       {/* Основные метрики */}
@@ -182,28 +249,34 @@ export default function MonitoringPage() {
         </div>
 
         <div className="divide-y divide-gray-200">
-          {alerts.map((alert) => (
-            <div key={alert.id} className="px-6 py-4 flex items-start gap-4 hover:bg-gray-50">
-              <div
-                className={`mt-1 ${
-                  alert.severity === 'high'
-                    ? 'text-red-500'
-                    : alert.severity === 'medium'
-                    ? 'text-yellow-500'
-                    : 'text-blue-500'
-                }`}
-              >
-                <AlertTriangle className="w-5 h-5" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm text-gray-900">{alert.message}</p>
-                <p className="text-xs text-gray-400 mt-1">
-                  {Math.floor((Date.now() - alert.time.getTime()) / 60000)} минут назад
-                </p>
-              </div>
-              <button className="text-sm text-[#00D632] hover:underline">Просмотреть</button>
+          {alerts.length === 0 ? (
+            <div className="px-6 py-8 text-center text-gray-500">
+              Оповещений нет
             </div>
-          ))}
+          ) : (
+            alerts.map((alert) => (
+              <div key={alert.id} className="px-6 py-4 flex items-start gap-4 hover:bg-gray-50">
+                <div
+                  className={`mt-1 ${
+                    alert.severity === 'high'
+                      ? 'text-red-500'
+                      : alert.severity === 'medium'
+                      ? 'text-yellow-500'
+                      : 'text-blue-500'
+                  }`}
+                >
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-900">{alert.message}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {formatTimeAgo(alert.time)}
+                  </p>
+                </div>
+                <button className="text-sm text-[#00D632] hover:underline">Просмотреть</button>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

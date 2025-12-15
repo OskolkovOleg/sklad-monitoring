@@ -142,6 +142,24 @@ model SKUNorm {
   @@index([skuId])
 }
 
+// Универсальная таблица для нормативов всех уровней
+model Norm {
+  id          String   @id @default(cuid())
+  entityName  String   // Название объекта (склад, зона, ячейка, SKU)
+  entityType  String   // warehouse, zone, location, sku
+  entityId    String?  // ID связанной сущности (опционально)
+  minLevel    Float    // Минимальный уровень
+  targetLevel Float    // Целевой уровень
+  maxLevel    Float    // Максимальный уровень (= вместимость)
+  capacity    Float    // Вместимость
+  unit        String   @default("шт")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([entityType])
+  @@index([entityId])
+}
+
 // Агрегированные данные для быстрой визуализации
 model Aggregation {
   id                String   @id @default(cuid())
