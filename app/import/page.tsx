@@ -104,7 +104,7 @@ export default function ImportPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -231,9 +231,9 @@ export default function ImportPage() {
                 <div className={`mt-6 p-4 rounded-lg ${result.success ? 'bg-green-50' : 'bg-red-50'}`}>
                   <div className="flex items-start gap-3">
                     {result.success ? (
-                      <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="w-6 h-6 text-green-600 shrink-0 mt-0.5" />
                     ) : (
-                      <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+                      <AlertCircle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
                     )}
                     <div className="flex-1">
                       <h3 className={`font-semibold ${result.success ? 'text-green-900' : 'text-red-900'}`}>

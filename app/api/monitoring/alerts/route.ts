@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
 
       if (agg.status === 'red') {
         severity = 'high'
-        const deficit = agg.deviationFromMin || 0
-        message = `${agg.entityName}: остаток ниже минимального уровня на ${Math.abs(Math.round(deficit))}%`
+        const fillPct = agg.fillPercentage || 0
+        message = `${agg.entityName}: критический уровень заполненности ${Math.round(fillPct)}%`
       } else if (agg.status === 'yellow') {
         severity = 'medium'
         const fillPct = agg.fillPercentage || 0
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         message: 'Обновление справочника SKU завершено',
         time: new Date(Date.now() - 900000).toISOString(),
         entityType: 'system',
-        entityId: null
+        entityId: 'system'
       })
     }
 

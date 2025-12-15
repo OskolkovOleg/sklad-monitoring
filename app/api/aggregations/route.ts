@@ -47,14 +47,13 @@ export async function GET(request: NextRequest) {
       if (validated.filters.warehouseId) {
         const warehouseIds = validated.filters.warehouseId.split(',')
         aggregations = aggregations.filter((agg) => 
-          warehouseIds.some(id => agg.warehouseId === id || agg.entityCode === id || agg.entityName.includes(id))
+          warehouseIds.some(id => agg.entityCode === id || agg.entityName.includes(id))
         )
       }
 
       // Фильтр по зоне
       if (validated.filters.zoneId) {
         aggregations = aggregations.filter((agg) => 
-          agg.zoneId === validated.filters!.zoneId || 
           agg.entityCode === validated.filters!.zoneId ||
           agg.entityName.includes(validated.filters!.zoneId || '')
         )
@@ -63,7 +62,6 @@ export async function GET(request: NextRequest) {
       // Фильтр по категории
       if (validated.filters.category) {
         aggregations = aggregations.filter((agg) => 
-          agg.category === validated.filters!.category ||
           agg.entityName.includes(validated.filters!.category || '')
         )
       }
@@ -71,7 +69,6 @@ export async function GET(request: NextRequest) {
       // Фильтр по поставщику
       if (validated.filters.supplier) {
         aggregations = aggregations.filter((agg) => 
-          agg.supplier === validated.filters!.supplier ||
           agg.entityName.includes(validated.filters!.supplier || '')
         )
       }
@@ -79,7 +76,7 @@ export async function GET(request: NextRequest) {
       // Фильтр по ABC классу
       if (validated.filters.abcClass) {
         aggregations = aggregations.filter((agg) => 
-          agg.abcClass === validated.filters!.abcClass
+          agg.entityName.includes(validated.filters!.abcClass || '')
         )
       }
 
@@ -89,9 +86,7 @@ export async function GET(request: NextRequest) {
         aggregations = aggregations.filter(
           (agg) =>
             agg.entityCode.toLowerCase().includes(search) ||
-            agg.entityName.toLowerCase().includes(search) ||
-            (agg.category && agg.category.toLowerCase().includes(search)) ||
-            (agg.supplier && agg.supplier.toLowerCase().includes(search))
+            agg.entityName.toLowerCase().includes(search)
         )
       }
     }
@@ -123,7 +118,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: 'Ошибка валидации', details: error.errors },
+        { error: 'Ошибка валидации', details: error.issues },
         { status: 400 }
       )
     }

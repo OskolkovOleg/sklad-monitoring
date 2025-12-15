@@ -41,7 +41,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-black flex">
       {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-900 to-black p-12 flex-col justify-between relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-gray-900 to-black p-12 flex-col justify-between relative overflow-hidden">
         <div className="absolute inset-0 bg-[#00D632] opacity-5"></div>
         <div className="relative z-10">
           <Link href="/" className="flex items-center gap-2 text-white">

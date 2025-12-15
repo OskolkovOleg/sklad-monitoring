@@ -90,7 +90,7 @@ export default function Home() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
             {/* Feature 1 */}
             <div className="flex gap-4">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Trophy className="w-12 h-12 text-black" strokeWidth={1.5} />
               </div>
               <div>
@@ -103,7 +103,7 @@ export default function Home() {
 
             {/* Feature 2 */}
             <div className="flex gap-4">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Building2 className="w-12 h-12 text-[#00D632]" strokeWidth={1.5} />
               </div>
               <div>
@@ -116,7 +116,7 @@ export default function Home() {
 
             {/* Feature 3 */}
             <div className="flex gap-4">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <ShoppingBag className="w-12 h-12 text-[#00D632]" strokeWidth={1.5} />
               </div>
               <div>
@@ -129,7 +129,7 @@ export default function Home() {
 
             {/* Feature 4 */}
             <div className="flex gap-4">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Globe className="w-12 h-12 text-black" strokeWidth={1.5} />
               </div>
               <div>
@@ -142,7 +142,7 @@ export default function Home() {
 
             {/* Feature 5 */}
             <div className="flex gap-4">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Star className="w-12 h-12 text-black" strokeWidth={1.5} />
               </div>
               <div>
@@ -155,7 +155,7 @@ export default function Home() {
 
             {/* Feature 6 */}
             <div className="flex gap-4">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Headphones className="w-12 h-12 text-black" strokeWidth={1.5} />
               </div>
               <div>
