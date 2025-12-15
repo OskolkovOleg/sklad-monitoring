@@ -36,18 +36,62 @@ export async function GET(request: NextRequest) {
     // Получаем моковые данные
     let aggregations = getMockData(validated.entityType)
 
-    // Применяем фильтры
+    // ========== ПРИМЕНЯЕМ ВСЕ ФИЛЬТРЫ ==========
     if (validated.filters) {
+      // Фильтр по статусу
       if (validated.filters.status) {
         aggregations = aggregations.filter((agg) => agg.status === validated.filters!.status)
       }
 
+      // Фильтр по складу (множественный выбор через запятую)
+      if (validated.filters.warehouseId) {
+        const warehouseIds = validated.filters.warehouseId.split(',')
+        aggregations = aggregations.filter((agg) => 
+          warehouseIds.some(id => agg.warehouseId === id || agg.entityCode === id || agg.entityName.includes(id))
+        )
+      }
+
+      // Фильтр по зоне
+      if (validated.filters.zoneId) {
+        aggregations = aggregations.filter((agg) => 
+          agg.zoneId === validated.filters!.zoneId || 
+          agg.entityCode === validated.filters!.zoneId ||
+          agg.entityName.includes(validated.filters!.zoneId || '')
+        )
+      }
+
+      // Фильтр по категории
+      if (validated.filters.category) {
+        aggregations = aggregations.filter((agg) => 
+          agg.category === validated.filters!.category ||
+          agg.entityName.includes(validated.filters!.category || '')
+        )
+      }
+
+      // Фильтр по поставщику
+      if (validated.filters.supplier) {
+        aggregations = aggregations.filter((agg) => 
+          agg.supplier === validated.filters!.supplier ||
+          agg.entityName.includes(validated.filters!.supplier || '')
+        )
+      }
+
+      // Фильтр по ABC классу
+      if (validated.filters.abcClass) {
+        aggregations = aggregations.filter((agg) => 
+          agg.abcClass === validated.filters!.abcClass
+        )
+      }
+
+      // Поиск по коду и названию
       if (validated.filters.search) {
         const search = validated.filters.search.toLowerCase()
         aggregations = aggregations.filter(
           (agg) =>
             agg.entityCode.toLowerCase().includes(search) ||
-            agg.entityName.toLowerCase().includes(search)
+            agg.entityName.toLowerCase().includes(search) ||
+            (agg.category && agg.category.toLowerCase().includes(search)) ||
+            (agg.supplier && agg.supplier.toLowerCase().includes(search))
         )
       }
     }

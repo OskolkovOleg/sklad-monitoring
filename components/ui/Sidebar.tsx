@@ -12,13 +12,19 @@ import {
   User,
   ChevronRight,
   Menu,
-  X
+  X,
+  Database,
+  Target,
+  TrendingUp
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Интеграция данных', href: '/dashboard/integration', icon: Database },
+  { name: 'Нормативы и вместимости', href: '/dashboard/norms', icon: Target },
+  { name: 'Мониторинг KPI', href: '/dashboard/monitoring', icon: TrendingUp },
   { name: 'Отчеты', href: '/dashboard/reports', icon: FileText },
   { name: 'Настройки', href: '/dashboard/settings', icon: Settings },
 ]

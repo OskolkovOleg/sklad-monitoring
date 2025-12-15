@@ -378,6 +378,45 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Командный Пункт</h1>
           <p className="text-gray-500">Мониторинг заполненности и KPI</p>
+          
+          {/* Активные фильтры - индикатор */}
+          {Object.keys(filters).filter(key => filters[key as keyof FilterParams]).length > 0 && (
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-xs text-gray-500">Активные фильтры:</span>
+              <div className="flex items-center gap-1">
+                {filters.warehouseId && (
+                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                    Склад
+                  </span>
+                )}
+                {filters.zoneId && (
+                  <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">
+                    Зона
+                  </span>
+                )}
+                {filters.category && (
+                  <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    {filters.category}
+                  </span>
+                )}
+                {filters.supplier && (
+                  <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full">
+                    {filters.supplier}
+                  </span>
+                )}
+                {filters.abcClass && (
+                  <span className="px-2 py-0.5 bg-pink-100 text-pink-700 text-xs rounded-full">
+                    ABC: {filters.abcClass}
+                  </span>
+                )}
+                {filters.status && (
+                  <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">
+                    Статус: {filters.status}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-3">
           {/* Simulation Toggle */}
