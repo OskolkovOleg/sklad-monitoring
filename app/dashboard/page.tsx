@@ -11,6 +11,7 @@ import { DashboardControls } from '@/components/dashboard/DashboardControls'
 import { Loader2, BarChart3 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { ru } from 'date-fns/locale'
+import { exportToCSV, formatDateForFilename } from '@/lib/utils/export'
 import type {
   Aggregation,
   FilterParams,
@@ -199,31 +200,9 @@ export default function DashboardPage() {
     entityType: agg.entityType,
   }))
 
-  // Обработка клика по столбцу (drill-down + детали)
+  // Обработка клика по столбцу (только drill-down)
   const handleBarClick = (dataPoint: ChartDataPoint) => {
     console.log('[Drill-Down] Bar clicked:', dataPoint)
-    
-    // Открываем детальную панель
-    const aggregation = aggregations.find((a: any) => a.id === dataPoint.id)
-    if (aggregation) {
-      setDetailsPanel({
-        isOpen: true,
-        data: {
-          entityId: aggregation.id,
-          entityType: aggregation.entityType,
-          entityName: aggregation.name,
-          totalQuantity: aggregation.value,
-          availableQuantity: aggregation.value, // Placeholder
-          reservedQuantity: 0, // Placeholder
-          capacity: aggregation.capacity || 0,
-          fillPercentage: aggregation.fillPercentage || 0,
-          minLevel: 0, // Placeholder
-          targetLevel: 0, // Placeholder
-          maxLevel: 0, // Placeholder
-          status: aggregation.status,
-        },
-      })
-    }
 
     // Drill-down навигация (кроме SKU)
     if (dataPoint.entityType !== 'sku') {
@@ -259,6 +238,30 @@ export default function DashboardPage() {
         }
         setFilters(newFilters)
       }
+    }
+  }
+
+  // Показать детали для выбранного элемента
+  const handleShowDetails = (dataPoint: ChartDataPoint) => {
+    const aggregation = aggregations.find((a: any) => a.id === dataPoint.id)
+    if (aggregation) {
+      setDetailsPanel({
+        isOpen: true,
+        data: {
+          entityId: aggregation.id,
+          entityType: aggregation.entityType,
+          entityName: aggregation.name,
+          totalQuantity: aggregation.value,
+          availableQuantity: aggregation.value, // Placeholder
+          reservedQuantity: 0, // Placeholder
+          capacity: aggregation.capacity || 0,
+          fillPercentage: aggregation.fillPercentage || 0,
+          minLevel: 0, // Placeholder
+          targetLevel: 0, // Placeholder
+          maxLevel: 0, // Placeholder
+          status: aggregation.status,
+        },
+      })
     }
   }
 
@@ -302,6 +305,72 @@ export default function DashboardPage() {
     sku: 'Товары (SKU)',
   }
 
+  // Export current data to CSV
+  const handleExport = async () => {
+    console.log('handleExport started')
+    console.log('aggregations:', aggregations)
+    console.log('aggregations.length:', aggregations.length)
+    
+    try {
+      if (aggregations.length === 0) {
+        console.log('No data to export')
+        alert('Нет данных для экспорта')
+        return
+      }
+
+      // Prepare export data
+      const exportData = aggregations.map((agg: any) => ({
+        'Тип': entityTypeLabels[agg.entityType] || agg.entityType,
+        'Код': agg.entityCode || '',
+        'Название': agg.name,
+        'Количество': agg.value,
+        'Вместимость': agg.capacity || '',
+        'Заполненность %': agg.fillPercentage ? agg.fillPercentage.toFixed(2) : '',
+        'Статус': agg.status,
+        'Дата расчета': new Date(agg.calculatedAt || Date.now()).toLocaleString('ru-RU'),
+      }))
+
+      console.log('exportData prepared:', exportData)
+
+      // Generate filename
+      const level = entityTypeLabels[currentEntityType] || currentEntityType
+      const timestamp = formatDateForFilename()
+      const filename = `отчет_${level}_${timestamp}.csv`
+      
+      console.log('filename:', filename)
+      console.log('Calling exportToCSV...')
+
+      // Export to CSV
+      exportToCSV(exportData, filename)
+      
+      console.log('exportToCSV called')
+
+      // Save export history to API (non-blocking)
+      try {
+        await fetch('/api/reports/history', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename,
+            reportType: 'warehouse_status',
+            entityType: currentEntityType,
+            recordCount: exportData.length,
+            filters: JSON.stringify(filters),
+          }),
+        })
+      } catch (apiError) {
+        // Не блокируем экспорт, если не удалось сохранить историю
+        console.warn('Could not save export history:', apiError)
+      }
+
+      // Success message
+      alert(`Файл ${filename} успешно экспортирован!`)
+    } catch (error) {
+      console.error('Error exporting data:', error)
+      alert('Ошибка при экспорте данных. Проверьте консоль для деталей.')
+    }
+  }
+
   return (
     <div className="space-y-8">
       {/* Header Section */}
@@ -316,11 +385,11 @@ export default function DashboardPage() {
             onClick={() => setSimulationEnabled(!simulationEnabled)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
               simulationEnabled
-                ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-[#00D632] bg-opacity-20 text-white hover:bg-opacity-30 border border-[#00D632]'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
             }`}
           >
-            <div className={`w-2 h-2 rounded-full ${simulationEnabled ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+            <div className={`w-2 h-2 rounded-full ${simulationEnabled ? 'bg-white animate-pulse' : 'bg-gray-400'}`} />
             {simulationEnabled ? 'Симуляция активна' : 'Включить симуляцию'}
           </button>
           
@@ -336,7 +405,7 @@ export default function DashboardPage() {
               fetchKPI()
               fetchAggregations()
             }}
-            onExport={() => console.log('Export clicked')}
+            onExport={handleExport}
             isRefreshing={loading || kpiLoading}
           />
         </div>
@@ -346,7 +415,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {kpiLoading ? (
           [...Array(5)].map((_, i) => (
-            <div key={i} className="bg-white rounded-xl shadow-sm p-6 animate-pulse border border-gray-100">
+            <div key={i} className="bg-white rounded-lg shadow-sm p-6 animate-pulse border border-gray-100">
               <div className="h-4 bg-gray-100 rounded w-3/4 mb-3"></div>
               <div className="h-8 bg-gray-100 rounded w-1/2"></div>
             </div>
@@ -414,7 +483,7 @@ export default function DashboardPage() {
                   onClick={() => setViewMode('quantity')}
                   className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
                     viewMode === 'quantity'
-                      ? 'bg-white text-gray-900 shadow-sm'
+                      ? 'bg-[#00D632] text-white shadow-sm'
                       : 'text-gray-500 hover:text-gray-900'
                   }`}
                 >
@@ -424,7 +493,7 @@ export default function DashboardPage() {
                   onClick={() => setViewMode('percentage')}
                   className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
                     viewMode === 'percentage'
-                      ? 'bg-white text-gray-900 shadow-sm'
+                      ? 'bg-[#00D632] text-white shadow-sm'
                       : 'text-gray-500 hover:text-gray-900'
                   }`}
                 >
@@ -447,14 +516,48 @@ export default function DashboardPage() {
         <div className="p-6 bg-gray-50/50 min-h-[500px]">
           {loading ? (
             <div className="flex items-center justify-center h-[400px]">
-              <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+              <Loader2 className="w-8 h-8 animate-spin text-[#00D632]" />
             </div>
           ) : chartData.length > 0 ? (
-            <WarehouseChart
-              data={chartData}
-              viewMode={viewMode}
-              onBarClick={handleBarClick}
-            />
+            <>
+              <WarehouseChart
+                data={chartData}
+                viewMode={viewMode}
+                onBarClick={handleBarClick}
+              />
+              
+              {/* Items List with Details Buttons */}
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {chartData.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-white rounded-lg p-4 border border-gray-200 hover:border-[#00D632] transition-colors"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900 mb-1">{item.name}</h3>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <p>Количество: <span className="font-medium">{item.value.toLocaleString()}</span></p>
+                          {item.fillPercentage !== undefined && item.fillPercentage > 0 && (
+                            <p>Заполненность: <span className={`font-medium ${
+                              item.status === 'red' ? 'text-red-600' :
+                              item.status === 'yellow' ? 'text-yellow-600' :
+                              item.status === 'green' ? 'text-[#00D632]' : 'text-gray-600'
+                            }`}>{item.fillPercentage.toFixed(1)}%</span></p>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleShowDetails(item)}
+                        className="ml-3 px-3 py-1.5 text-sm font-medium text-[#00D632] hover:text-[#00b32a] hover:bg-green-50 rounded-md transition-colors"
+                      >
+                        Подробно
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center h-[400px] text-gray-500">
               <div className="bg-white p-4 rounded-full shadow-sm mb-4">

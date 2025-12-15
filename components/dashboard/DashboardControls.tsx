@@ -1,6 +1,6 @@
 'use client'
 
-import { Download, RefreshCw, FileText } from 'lucide-react'
+import { Download, RefreshCw } from 'lucide-react'
 
 interface DashboardControlsProps {
   onRefresh: () => void
@@ -14,7 +14,7 @@ export function DashboardControls({ onRefresh, onExport, isRefreshing }: Dashboa
       <button
         onClick={onRefresh}
         disabled={isRefreshing}
-        className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors disabled:opacity-50"
+        className="p-2 text-gray-500 hover:text-[#00D632] hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
         title="Обновить данные"
       >
         <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -22,17 +22,10 @@ export function DashboardControls({ onRefresh, onExport, isRefreshing }: Dashboa
       
       <button
         onClick={onExport}
-        className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
-      >
-        <FileText className="w-4 h-4 text-gray-500" />
-        <span>Экспорт отчета</span>
-      </button>
-      
-      <button
-        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg"
+        className="flex items-center gap-2 px-4 py-2 bg-[#00D632] text-white rounded-lg hover:bg-[#00b32a] transition-all shadow-md hover:shadow-lg"
       >
         <Download className="w-4 h-4" />
-        <span>Скачать PDF</span>
+        <span>Экспорт CSV</span>
       </button>
     </div>
   )

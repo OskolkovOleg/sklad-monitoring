@@ -99,15 +99,6 @@ export function WarehouseChart({ data, viewMode, onBarClick }: WarehouseChartPro
           }}
         />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(156, 163, 175, 0.1)' }} />
-        <Legend
-          wrapperStyle={{ paddingTop: '20px' }}
-          payload={[
-            { value: 'Нормальный уровень (≥ target)', type: 'square', color: '#10b981' },
-            { value: 'Требует внимания (min - target)', type: 'square', color: '#f59e0b' },
-            { value: 'Критический уровень (< min)', type: 'square', color: '#ef4444' },
-            { value: 'Нет данных', type: 'square', color: '#9ca3af' },
-          ]}
-        />
         
         <Bar
           dataKey="displayValue"

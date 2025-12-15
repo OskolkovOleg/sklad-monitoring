@@ -21,7 +21,7 @@ export function Breadcrumbs({ levels, onNavigate }: BreadcrumbsProps) {
     <nav className="flex items-center space-x-2 text-sm">
       <button
         onClick={() => onNavigate(-1)}
-        className="flex items-center text-blue-600 hover:text-blue-700 font-medium transition-colors"
+        className="flex items-center text-[#00D632] hover:text-[#00b32a] font-medium transition-colors"
       >
         <Home className="w-4 h-4 mr-1" />
         Главная
@@ -35,7 +35,7 @@ export function Breadcrumbs({ levels, onNavigate }: BreadcrumbsProps) {
             className={`font-medium transition-colors ${
               index === levels.length - 1
                 ? 'text-gray-900 cursor-default'
-                : 'text-blue-600 hover:text-blue-700'
+                : 'text-[#00D632] hover:text-[#00b32a]'
             }`}
             disabled={index === levels.length - 1}
           >

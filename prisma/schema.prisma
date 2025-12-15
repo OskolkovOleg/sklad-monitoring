@@ -204,6 +204,23 @@ model ImportLog {
   @@index([type])
 }
 
+// История экспорта отчетов
+model ReportExport {
+  id          String   @id @default(cuid())
+  filename    String
+  reportType  String   // warehouse_status, kpi_report, inventory_report
+  entityType  String?  // warehouse, zone, location, sku
+  recordCount Int      @default(0)
+  filters     String?  // JSON с фильтрами
+  exportedBy  String?
+  exportedAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  
+  @@index([reportType])
+  @@index([exportedAt])
+  @@index([exportedBy])
+}
+
 // NextAuth - Пользователи
 model User {
   id            String    @id @default(cuid())
