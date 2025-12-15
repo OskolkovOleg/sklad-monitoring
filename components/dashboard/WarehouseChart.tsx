@@ -79,12 +79,6 @@ export function WarehouseChart({ data, viewMode, onBarClick }: WarehouseChartPro
       <BarChart
         data={chartData}
         margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
-        onClick={(e) => {
-          if (e && e.activePayload && e.activePayload[0]) {
-            const dataPoint = data[e.activeTooltipIndex!]
-            onBarClick?.(dataPoint)
-          }
-        }}
       >
         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis
@@ -119,6 +113,17 @@ export function WarehouseChart({ data, viewMode, onBarClick }: WarehouseChartPro
           dataKey="displayValue"
           cursor="pointer"
           radius={[8, 8, 0, 0]}
+          animationDuration={800}
+          animationEasing="ease-in-out"
+          isAnimationActive={true}
+          onClick={(data: any) => {
+            if (data && data.name) {
+              const dataPoint = chartData.find(d => d.name === data.name)
+              if (dataPoint) {
+                onBarClick?.(dataPoint)
+              }
+            }
+          }}
         >
           {chartData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={getStatusColor(entry.status)} />

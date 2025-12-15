@@ -1,10 +1,16 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { WarehouseChart } from '@/components/dashboard/WarehouseChart'
 import { DashboardFilters } from '@/components/dashboard/DashboardFilters'
 import { Breadcrumbs } from '@/components/dashboard/Breadcrumbs'
+import { KPICard } from '@/components/dashboard/KPICard'
+import { DetailsPanel, type DetailsPanelData } from '@/components/dashboard/DetailsPanel'
+import { DashboardControls } from '@/components/dashboard/DashboardControls'
 import { Loader2, BarChart3 } from 'lucide-react'
+import { formatDistanceToNow } from 'date-fns'
+import { ru } from 'date-fns/locale'
 import type {
   Aggregation,
   FilterParams,
@@ -13,9 +19,25 @@ import type {
   DrillDownLevel,
 } from '@/types'
 
+interface KPIData {
+  avgFillPercentage: number
+  totalPositions: number
+  redCount: number
+  yellowCount: number
+  grayCount: number
+  greenCount: number
+  lastUpdate: Date
+  totalQuantity: number
+  totalCapacity: number
+  utilizationRate: number
+}
+
 export default function DashboardPage() {
+  const { data: session } = useSession()
   const [loading, setLoading] = useState(true)
-  const [aggregations, setAggregations] = useState<Aggregation[]>([])
+  const [kpiLoading, setKpiLoading] = useState(true)
+  const [aggregations, setAggregations] = useState<any[]>([])
+  const [kpiData, setKpiData] = useState<KPIData | null>(null)
   const [viewMode, setViewMode] = useState<'quantity' | 'percentage'>('quantity')
   const [currentEntityType, setCurrentEntityType] = useState<'warehouse' | 'zone' | 'location' | 'sku'>('warehouse')
   const [drillDownPath, setDrillDownPath] = useState<DrillDownLevel[]>([])
@@ -24,31 +46,106 @@ export default function DashboardPage() {
     field: 'entityName',
     order: 'asc',
   })
+  const [detailsPanel, setDetailsPanel] = useState<{
+    isOpen: boolean
+    data: DetailsPanelData | null
+  }>({
+    isOpen: false,
+    data: null,
+  })
+  const [simulationEnabled, setSimulationEnabled] = useState(false)
+  const [lastSimulationTime, setLastSimulationTime] = useState<Date | null>(null)
 
-  // Загрузка данных
+  // Загрузка KPI данных
+  useEffect(() => {
+    fetchKPI()
+  }, [filters.warehouseId, filters.zoneId])
+
+  // Загрузка агрегаций
   useEffect(() => {
     fetchAggregations()
-  }, [currentEntityType, filters, sort])
+  }, [currentEntityType, drillDownPath, filters, sort])
+
+  // Симуляция обновлений данных
+  useEffect(() => {
+    if (!simulationEnabled) return
+
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch('/api/simulate/tick', { method: 'POST' })
+        const result = await response.json()
+        
+        if (result.success) {
+          setLastSimulationTime(new Date())
+          // Обновляем данные плавно без перезагрузки
+          fetchKPISilent()
+          fetchAggregationsSilent()
+        }
+      } catch (error) {
+        console.error('Error during simulation tick:', error)
+      }
+    }, 7000) // Каждые 7 секунд
+
+    return () => clearInterval(interval)
+  }, [simulationEnabled, currentEntityType, drillDownPath, filters])
+
+  const fetchKPI = async () => {
+    setKpiLoading(true)
+    try {
+      const params = new URLSearchParams()
+      if (filters.warehouseId) params.append('warehouseId', filters.warehouseId)
+      if (filters.zoneId) params.append('zoneId', filters.zoneId)
+
+      const response = await fetch(`/api/kpi?${params}`)
+      const data = await response.json()
+      if (data.data) {
+        setKpiData(data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching KPI:', error)
+    } finally {
+      setKpiLoading(false)
+    }
+  }
+
+  // Silent fetch for smooth updates during simulation
+  const fetchKPISilent = async () => {
+    try {
+      const params = new URLSearchParams()
+      if (filters.warehouseId) params.append('warehouseId', filters.warehouseId)
+      if (filters.zoneId) params.append('zoneId', filters.zoneId)
+
+      const response = await fetch(`/api/kpi?${params}`)
+      const data = await response.json()
+      if (data.data) {
+        setKpiData(data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching KPI:', error)
+    }
+  }
 
   const fetchAggregations = async () => {
     setLoading(true)
     try {
+      // Determine parentId from drillDownPath
+      let parentId = undefined
+      if (drillDownPath.length > 0) {
+        parentId = drillDownPath[drillDownPath.length - 1].entityId
+      }
+
       const params = new URLSearchParams({
-        entityType: currentEntityType,
-        sortField: sort.field,
-        sortOrder: sort.order,
+        level: currentEntityType,
       })
 
-      if (filters.warehouseId) params.append('warehouseId', filters.warehouseId)
-      if (filters.zoneId) params.append('zoneId', filters.zoneId)
-      if (filters.category) params.append('category', filters.category)
-      if (filters.supplier) params.append('supplier', filters.supplier)
-      if (filters.abcClass) params.append('abcClass', filters.abcClass)
-      if (filters.status) params.append('status', filters.status)
-      if (filters.search) params.append('search', filters.search)
+      if (parentId) {
+        params.append('parentId', parentId)
+      }
 
-      const response = await fetch(`/api/aggregations?${params}`)
+      console.log('[Drill-Down] Fetching:', { level: currentEntityType, parentId, drillDownPath })
+      const response = await fetch(`/api/dashboard/bars?${params}`)
       const data = await response.json()
+      console.log('[Drill-Down] Response:', data)
 
       if (data.data) {
         setAggregations(data.data)
@@ -60,48 +157,107 @@ export default function DashboardPage() {
     }
   }
 
+  // Silent fetch for smooth updates during simulation
+  const fetchAggregationsSilent = async () => {
+    try {
+      // Determine parentId from drillDownPath
+      let parentId = undefined
+      if (drillDownPath.length > 0) {
+        parentId = drillDownPath[drillDownPath.length - 1].entityId
+      }
+
+      const params = new URLSearchParams({
+        level: currentEntityType,
+      })
+
+      if (parentId) {
+        params.append('parentId', parentId)
+      }
+
+      const response = await fetch(`/api/dashboard/bars?${params}`)
+      const data = await response.json()
+
+      if (data.data) {
+        setAggregations(data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching aggregations:', error)
+    }
+  }
+
   // Преобразование данных для диаграммы
-  const chartData: ChartDataPoint[] = aggregations.map((agg) => ({
-    name: agg.entityName,
-    value: agg.totalQuantity,
+  const chartData: ChartDataPoint[] = aggregations.map((agg: any) => ({
+    name: agg.name,
+    value: agg.value,
     fillPercentage: agg.fillPercentage,
     status: agg.status,
-    minLevel: agg.minLevel,
-    targetLevel: agg.targetLevel,
-    maxLevel: agg.maxLevel,
+    // minLevel: agg.minLevel, // Not yet in new API
+    // targetLevel: agg.targetLevel, // Not yet in new API
+    // maxLevel: agg.maxLevel, // Not yet in new API
     capacity: agg.capacity,
-    id: agg.entityId,
+    id: agg.id,
     entityType: agg.entityType,
   }))
 
-  // Обработка клика по столбцу (drill-down)
+  // Обработка клика по столбцу (drill-down + детали)
   const handleBarClick = (dataPoint: ChartDataPoint) => {
-    // Добавляем в путь навигации
-    setDrillDownPath([
-      ...drillDownPath,
-      {
-        entityType: dataPoint.entityType,
-        entityId: dataPoint.id,
-        entityName: dataPoint.name,
-      },
-    ])
-
-    // Определяем следующий уровень детализации
-    const nextLevelMap: Record<string, 'zone' | 'location' | 'sku'> = {
-      warehouse: 'zone',
-      zone: 'location',
-      location: 'sku',
+    console.log('[Drill-Down] Bar clicked:', dataPoint)
+    
+    // Открываем детальную панель
+    const aggregation = aggregations.find((a: any) => a.id === dataPoint.id)
+    if (aggregation) {
+      setDetailsPanel({
+        isOpen: true,
+        data: {
+          entityId: aggregation.id,
+          entityType: aggregation.entityType,
+          entityName: aggregation.name,
+          totalQuantity: aggregation.value,
+          availableQuantity: aggregation.value, // Placeholder
+          reservedQuantity: 0, // Placeholder
+          capacity: aggregation.capacity || 0,
+          fillPercentage: aggregation.fillPercentage || 0,
+          minLevel: 0, // Placeholder
+          targetLevel: 0, // Placeholder
+          maxLevel: 0, // Placeholder
+          status: aggregation.status,
+        },
+      })
     }
 
-    const nextLevel = nextLevelMap[dataPoint.entityType]
-    if (nextLevel) {
-      setCurrentEntityType(nextLevel)
+    // Drill-down навигация (кроме SKU)
+    if (dataPoint.entityType !== 'sku') {
+      const newPath = [
+        ...drillDownPath,
+        {
+          entityType: dataPoint.entityType,
+          entityId: dataPoint.id,
+          entityName: dataPoint.name,
+        },
+      ]
+      
+      console.log('[Drill-Down] New path:', newPath)
+      setDrillDownPath(newPath)
 
-      // Обновляем фильтры для следующего уровня
-      if (dataPoint.entityType === 'warehouse') {
-        setFilters({ ...filters, warehouseId: dataPoint.id })
-      } else if (dataPoint.entityType === 'zone') {
-        setFilters({ ...filters, zoneId: dataPoint.id })
+      const nextLevelMap: Record<string, 'zone' | 'location' | 'sku'> = {
+        warehouse: 'zone',
+        zone: 'location',
+        location: 'sku',
+      }
+
+      const nextLevel = nextLevelMap[dataPoint.entityType]
+      console.log('[Drill-Down] Next level:', nextLevel)
+      if (nextLevel) {
+        setCurrentEntityType(nextLevel)
+
+        // Update filters for KPI
+        const newFilters: FilterParams = { ...filters }
+        if (dataPoint.entityType === 'warehouse') {
+          newFilters.warehouseId = dataPoint.id
+        } else if (dataPoint.entityType === 'zone') {
+          newFilters.zoneId = dataPoint.id
+        }
+        setFilters(newFilters)
       }
     }
   }
@@ -109,22 +265,32 @@ export default function DashboardPage() {
   // Навигация по хлебным крошкам
   const handleBreadcrumbNavigate = (index: number) => {
     if (index === -1) {
-      // Возврат на главную
       setDrillDownPath([])
       setCurrentEntityType('warehouse')
       setFilters({})
     } else {
-      // Возврат на определенный уровень
       const newPath = drillDownPath.slice(0, index + 1)
       setDrillDownPath(newPath)
 
-      const levelEntityType = newPath[newPath.length - 1]?.entityType
+      const lastItem = newPath[newPath.length - 1]
+      const levelEntityType = lastItem?.entityType
+
+      // Reconstruct filters
+      const newFilters: FilterParams = {}
+      const warehouseItem = newPath.find(i => i.entityType === 'warehouse')
+      if (warehouseItem) newFilters.warehouseId = warehouseItem.entityId
+      
+      const zoneItem = newPath.find(i => i.entityType === 'zone')
+      if (zoneItem) newFilters.zoneId = zoneItem.entityId
+      
+      setFilters(newFilters)
+
       if (levelEntityType === 'warehouse') {
         setCurrentEntityType('zone')
-        setFilters({ warehouseId: newPath[newPath.length - 1].entityId })
       } else if (levelEntityType === 'zone') {
         setCurrentEntityType('location')
-        setFilters({ zoneId: newPath[newPath.length - 1].entityId })
+      } else if (levelEntityType === 'location') {
+        setCurrentEntityType('sku')
       }
     }
   }
@@ -137,77 +303,151 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Заголовок */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <BarChart3 className="w-8 h-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">
-              Визуализация заполненности склада
-            </h1>
-          </div>
-          <p className="text-gray-600">
-            Система мониторинга остатков и заполненности складских помещений
-          </p>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Командный Пункт</h1>
+          <p className="text-gray-500">Мониторинг заполненности и KPI</p>
         </div>
-
-        {/* Хлебные крошки */}
-        {drillDownPath.length > 0 && (
-          <div className="mb-6">
-            <Breadcrumbs levels={drillDownPath} onNavigate={handleBreadcrumbNavigate} />
-          </div>
-        )}
-
-        {/* Фильтры */}
-        <div className="mb-6">
-          <DashboardFilters
-            filters={filters}
-            sort={sort}
-            onFiltersChange={setFilters}
-            onSortChange={setSort}
+        <div className="flex items-center gap-3">
+          {/* Simulation Toggle */}
+          <button
+            onClick={() => setSimulationEnabled(!simulationEnabled)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+              simulationEnabled
+                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            <div className={`w-2 h-2 rounded-full ${simulationEnabled ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+            {simulationEnabled ? 'Симуляция активна' : 'Включить симуляцию'}
+          </button>
+          
+          {/* Last Update Indicator */}
+          {lastSimulationTime && simulationEnabled && (
+            <div className="text-xs text-gray-500">
+              Обновлено: {formatDistanceToNow(lastSimulationTime, { addSuffix: true, locale: ru })}
+            </div>
+          )}
+          
+          <DashboardControls 
+            onRefresh={() => {
+              fetchKPI()
+              fetchAggregations()
+            }}
+            onExport={() => console.log('Export clicked')}
+            isRefreshing={loading || kpiLoading}
           />
         </div>
+      </div>
 
-        {/* Переключатель режима отображения */}
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              {entityTypeLabels[currentEntityType]}
-            </h2>
-            <span className="text-sm text-gray-500">
-              {aggregations.length} записей
-            </span>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setViewMode('quantity')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                viewMode === 'quantity'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Количество
-            </button>
-            <button
-              onClick={() => setViewMode('percentage')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                viewMode === 'percentage'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Заполненность %
-            </button>
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        {kpiLoading ? (
+          [...Array(5)].map((_, i) => (
+            <div key={i} className="bg-white rounded-xl shadow-sm p-6 animate-pulse border border-gray-100">
+              <div className="h-4 bg-gray-100 rounded w-3/4 mb-3"></div>
+              <div className="h-8 bg-gray-100 rounded w-1/2"></div>
+            </div>
+          ))
+        ) : kpiData ? (
+          <>
+            <KPICard
+              title="Средняя заполненность"
+              value={`${kpiData.avgFillPercentage}%`}
+              subtitle={`${kpiData.totalPositions} позиций`}
+              icon="activity"
+              color="blue"
+            />
+            <KPICard
+              title="Дефицит"
+              value={kpiData.redCount}
+              subtitle="Ниже минимума"
+              icon="alert"
+              color="red"
+            />
+            <KPICard
+              title="Требуют внимания"
+              value={kpiData.yellowCount}
+              subtitle="Между min и target"
+              icon="trending"
+              color="yellow"
+            />
+            <KPICard
+              title="Без данных"
+              value={kpiData.grayCount}
+              subtitle="Нет вместимости"
+              icon="package"
+              color="gray"
+            />
+            <KPICard
+              title="Последнее обновление"
+              value={formatDistanceToNow(new Date(kpiData.lastUpdate), {
+                addSuffix: true,
+                locale: ru,
+              })}
+              subtitle={new Date(kpiData.lastUpdate).toLocaleString('ru-RU')}
+              icon="clock"
+              color="green"
+            />
+          </>
+        ) : null}
+      </div>
+
+      {/* Main Content Area */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex flex-col space-y-6">
+            {/* Breadcrumbs & View Toggle */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex-1">
+                {drillDownPath.length > 0 ? (
+                  <Breadcrumbs levels={drillDownPath} onNavigate={handleBreadcrumbNavigate} />
+                ) : (
+                  <h2 className="text-lg font-semibold text-gray-900">Обзор складов</h2>
+                )}
+              </div>
+              
+              <div className="flex bg-gray-100 p-1 rounded-lg">
+                <button
+                  onClick={() => setViewMode('quantity')}
+                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
+                    viewMode === 'quantity'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  Количество
+                </button>
+                <button
+                  onClick={() => setViewMode('percentage')}
+                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
+                    viewMode === 'percentage'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  Заполненность %
+                </button>
+              </div>
+            </div>
+
+            {/* Filters */}
+            <DashboardFilters
+              filters={filters}
+              sort={sort}
+              onFiltersChange={setFilters}
+              onSortChange={setSort}
+            />
           </div>
         </div>
 
-        {/* Диаграмма */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        {/* Chart Area */}
+        <div className="p-6 bg-gray-50/50 min-h-[500px]">
           {loading ? (
-            <div className="flex items-center justify-center h-[500px]">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            <div className="flex items-center justify-center h-[400px]">
+              <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
             </div>
           ) : chartData.length > 0 ? (
             <WarehouseChart
@@ -216,14 +456,23 @@ export default function DashboardPage() {
               onBarClick={handleBarClick}
             />
           ) : (
-            <div className="flex flex-col items-center justify-center h-[500px] text-gray-500">
-              <BarChart3 className="w-16 h-16 mb-4 text-gray-400" />
-              <p className="text-lg font-medium">Нет данных для отображения</p>
-              <p className="text-sm">Попробуйте изменить фильтры или загрузите данные</p>
+            <div className="flex flex-col items-center justify-center h-[400px] text-gray-500">
+              <div className="bg-white p-4 rounded-full shadow-sm mb-4">
+                <BarChart3 className="w-8 h-8 text-gray-400" />
+              </div>
+              <p className="text-lg font-medium text-gray-900">Нет данных</p>
+              <p className="text-sm text-gray-500">Измените параметры фильтрации</p>
             </div>
           )}
         </div>
       </div>
+
+      {/* Details Panel */}
+      <DetailsPanel
+        isOpen={detailsPanel.isOpen}
+        onClose={() => setDetailsPanel({ isOpen: false, data: null })}
+        data={detailsPanel.data}
+      />
     </div>
   )
 }

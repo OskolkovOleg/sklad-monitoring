@@ -81,12 +81,15 @@ export async function POST(request: NextRequest) {
         }
 
         // Создать или обновить запись остатков
+        // Use empty string as default for batchNumber to work with unique constraint
+        const batchNumber = item.batchNumber || 'DEFAULT'
+        
         await prisma.inventory.upsert({
           where: {
             skuId_locationId_batchNumber: {
               skuId: sku.id,
               locationId: location.id,
-              batchNumber: item.batchNumber ?? null,
+              batchNumber: batchNumber,
             },
           },
           create: {
@@ -95,7 +98,7 @@ export async function POST(request: NextRequest) {
             quantity: item.quantity,
             reservedQty: item.reservedQty ?? 0,
             unavailableQty: item.unavailableQty ?? 0,
-            batchNumber: item.batchNumber,
+            batchNumber: batchNumber,
             expiryDate: item.expiryDate ? new Date(item.expiryDate) : undefined,
             status: item.status ?? 'available',
             lastUpdated: new Date(),
