@@ -569,6 +569,7 @@ export default function DashboardPage() {
               sort={sort}
               onFiltersChange={setFilters}
               onSortChange={setSort}
+              currentLevel={currentEntityType}
             />
           </div>
         </div>

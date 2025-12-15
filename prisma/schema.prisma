@@ -297,3 +297,40 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+// Настройки системы
+model Settings {
+  id                   String   @id @default(cuid())
+  
+  // Общие настройки
+  companyName          String   @default("ООО ТехноСклад")
+  systemLanguage       String   @default("ru")
+  timezone             String   @default("Europe/Moscow")
+  
+  // Уведомления
+  emailNotifications   Boolean  @default(true)
+  lowStockAlerts       Boolean  @default(true)
+  criticalStockAlerts  Boolean  @default(true)
+  alertThreshold       Int      @default(10)
+  
+  // Отображение
+  defaultView          String   @default("quantity")
+  showPercentages      Boolean  @default(true)
+  chartAnimations      Boolean  @default(true)
+  compactMode          Boolean  @default(false)
+  
+  // Пороги заполненности (влияют на цвета статусов)
+  redThreshold         Int      @default(90)
+  yellowThreshold      Int      @default(75)
+  
+  // Автообновление
+  autoRefresh          Boolean  @default(true)
+  refreshInterval      Int      @default(30)
+  
+  // База данных
+  enableBackups        Boolean  @default(true)
+  backupFrequency      String   @default("daily")
+  
+  updatedAt            DateTime @updatedAt
+  updatedBy            String?
+}

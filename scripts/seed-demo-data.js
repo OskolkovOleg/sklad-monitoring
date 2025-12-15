@@ -42,6 +42,9 @@ async function createWarehouses() {
               { code: 'A-03', name: 'Стеллаж A-03', capacity: 3000, unit: 'кг' },
               { code: 'A-04', name: 'Стеллаж A-04', capacity: 4000, unit: 'кг' },
               { code: 'A-05', name: 'Стеллаж A-05', capacity: 4500, unit: 'кг' },
+              { code: 'A-06', name: 'Стеллаж A-06', capacity: 4800, unit: 'кг' },
+              { code: 'A-07', name: 'Стеллаж A-07', capacity: 3500, unit: 'кг' },
+              { code: 'A-08', name: 'Стеллаж A-08', capacity: 5200, unit: 'кг' },
             ],
           },
           {
@@ -53,6 +56,9 @@ async function createWarehouses() {
               { code: 'B-03', name: 'Ящик B-03', capacity: 8000, unit: 'шт' },
               { code: 'B-04', name: 'Ящик B-04', capacity: 12000, unit: 'шт' },
               { code: 'B-05', name: 'Ящик B-05', capacity: 9000, unit: 'шт' },
+              { code: 'B-06', name: 'Ящик B-06', capacity: 11000, unit: 'шт' },
+              { code: 'B-07', name: 'Ящик B-07', capacity: 9500, unit: 'шт' },
+              { code: 'B-08', name: 'Ящик B-08', capacity: 10500, unit: 'шт' },
             ],
           },
           {
@@ -63,6 +69,8 @@ async function createWarehouses() {
               { code: 'C-02', name: 'Шкаф C-02', capacity: 100, unit: 'шт' },
               { code: 'C-03', name: 'Шкаф C-03', capacity: 150, unit: 'шт' },
               { code: 'C-04', name: 'Шкаф C-04', capacity: 80, unit: 'шт' },
+              { code: 'C-05', name: 'Шкаф C-05', capacity: 120, unit: 'шт' },
+              { code: 'C-06', name: 'Шкаф C-06', capacity: 90, unit: 'шт' },
             ],
           },
           {
@@ -72,6 +80,18 @@ async function createWarehouses() {
               { code: 'D-01', name: 'Стеллаж D-01', capacity: 5000, unit: 'шт' },
               { code: 'D-02', name: 'Стеллаж D-02', capacity: 5000, unit: 'шт' },
               { code: 'D-03', name: 'Стеллаж D-03', capacity: 4000, unit: 'шт' },
+              { code: 'D-04', name: 'Стеллаж D-04', capacity: 4500, unit: 'шт' },
+              { code: 'D-05', name: 'Стеллаж D-05', capacity: 5500, unit: 'шт' },
+            ],
+          },
+          {
+            code: 'ZONE-E',
+            name: 'Зона E - Упаковка',
+            locations: [
+              { code: 'E-01', name: 'Стеллаж E-01', capacity: 3000, unit: 'шт' },
+              { code: 'E-02', name: 'Стеллаж E-02', capacity: 3500, unit: 'шт' },
+              { code: 'E-03', name: 'Стеллаж E-03', capacity: 2800, unit: 'шт' },
+              { code: 'E-04', name: 'Стеллаж E-04', capacity: 3200, unit: 'шт' },
             ],
           },
         ],
@@ -88,6 +108,8 @@ async function createWarehouses() {
               { code: 'N1-01', name: 'Стеллаж N1-01', capacity: 3000, unit: 'кг' },
               { code: 'N1-02', name: 'Стеллаж N1-02', capacity: 3000, unit: 'кг' },
               { code: 'N1-03', name: 'Стеллаж N1-03', capacity: 2500, unit: 'кг' },
+              { code: 'N1-04', name: 'Стеллаж N1-04', capacity: 3200, unit: 'кг' },
+              { code: 'N1-05', name: 'Стеллаж N1-05', capacity: 2800, unit: 'кг' },
             ],
           },
           {
@@ -97,6 +119,17 @@ async function createWarehouses() {
               { code: 'N2-01', name: 'Паллет N2-01', capacity: 500, unit: 'шт' },
               { code: 'N2-02', name: 'Паллет N2-02', capacity: 500, unit: 'шт' },
               { code: 'N2-03', name: 'Паллет N2-03', capacity: 600, unit: 'шт' },
+              { code: 'N2-04', name: 'Паллет N2-04', capacity: 550, unit: 'шт' },
+              { code: 'N2-05', name: 'Паллет N2-05', capacity: 450, unit: 'шт' },
+            ],
+          },
+          {
+            code: 'ZONE-N3',
+            name: 'Северная зона 3 - Комплектующие',
+            locations: [
+              { code: 'N3-01', name: 'Ящик N3-01', capacity: 4000, unit: 'шт' },
+              { code: 'N3-02', name: 'Ящик N3-02', capacity: 4500, unit: 'шт' },
+              { code: 'N3-03', name: 'Ящик N3-03', capacity: 3800, unit: 'шт' },
             ],
           },
         ],
@@ -113,6 +146,9 @@ async function createWarehouses() {
               { code: 'S1-01', name: 'Ящик S1-01', capacity: 8000, unit: 'шт' },
               { code: 'S1-02', name: 'Ящик S1-02', capacity: 8000, unit: 'шт' },
               { code: 'S1-03', name: 'Ящик S1-03', capacity: 7000, unit: 'шт' },
+              { code: 'S1-04', name: 'Ящик S1-04', capacity: 7500, unit: 'шт' },
+              { code: 'S1-05', name: 'Ящик S1-05', capacity: 8500, unit: 'шт' },
+              { code: 'S1-06', name: 'Ящик S1-06', capacity: 9000, unit: 'шт' },
             ],
           },
           {
@@ -121,6 +157,69 @@ async function createWarehouses() {
             locations: [
               { code: 'S2-01', name: 'Контейнер S2-01', capacity: 1000, unit: 'л' },
               { code: 'S2-02', name: 'Контейнер S2-02', capacity: 1000, unit: 'л' },
+              { code: 'S2-03', name: 'Контейнер S2-03', capacity: 1200, unit: 'л' },
+              { code: 'S2-04', name: 'Контейнер S2-04', capacity: 800, unit: 'л' },
+            ],
+          },
+          {
+            code: 'ZONE-S3',
+            name: 'Южная зона 3 - Металлообработка',
+            locations: [
+              { code: 'S3-01', name: 'Стеллаж S3-01', capacity: 2500, unit: 'кг' },
+              { code: 'S3-02', name: 'Стеллаж S3-02', capacity: 2800, unit: 'кг' },
+              { code: 'S3-03', name: 'Стеллаж S3-03', capacity: 2200, unit: 'кг' },
+            ],
+          },
+        ],
+      },
+      {
+        code: 'WH-EAST',
+        name: 'Восточный склад',
+        description: 'Склад восточного региона',
+        zones: [
+          {
+            code: 'ZONE-E1',
+            name: 'Восточная зона 1 - Крепеж',
+            locations: [
+              { code: 'E1-01', name: 'Ящик E1-01', capacity: 12000, unit: 'шт' },
+              { code: 'E1-02', name: 'Ящик E1-02', capacity: 11000, unit: 'шт' },
+              { code: 'E1-03', name: 'Ящик E1-03', capacity: 13000, unit: 'шт' },
+              { code: 'E1-04', name: 'Ящик E1-04', capacity: 10500, unit: 'шт' },
+            ],
+          },
+          {
+            code: 'ZONE-E2',
+            name: 'Восточная зона 2 - Инструменты',
+            locations: [
+              { code: 'E2-01', name: 'Шкаф E2-01', capacity: 150, unit: 'шт' },
+              { code: 'E2-02', name: 'Шкаф E2-02', capacity: 180, unit: 'шт' },
+              { code: 'E2-03', name: 'Шкаф E2-03', capacity: 130, unit: 'шт' },
+            ],
+          },
+        ],
+      },
+      {
+        code: 'WH-WEST',
+        name: 'Западный склад',
+        description: 'Склад западного региона',
+        zones: [
+          {
+            code: 'ZONE-W1',
+            name: 'Западная зона 1 - Универсальная',
+            locations: [
+              { code: 'W1-01', name: 'Стеллаж W1-01', capacity: 3500, unit: 'кг' },
+              { code: 'W1-02', name: 'Стеллаж W1-02', capacity: 4000, unit: 'кг' },
+              { code: 'W1-03', name: 'Стеллаж W1-03', capacity: 3200, unit: 'кг' },
+              { code: 'W1-04', name: 'Стеллаж W1-04', capacity: 3800, unit: 'кг' },
+            ],
+          },
+          {
+            code: 'ZONE-W2',
+            name: 'Западная зона 2 - Электро',
+            locations: [
+              { code: 'W2-01', name: 'Стеллаж W2-01', capacity: 6000, unit: 'шт' },
+              { code: 'W2-02', name: 'Стеллаж W2-02', capacity: 5500, unit: 'шт' },
+              { code: 'W2-03', name: 'Стеллаж W2-03', capacity: 6500, unit: 'шт' },
             ],
           },
         ],
@@ -136,6 +235,15 @@ async function createWarehouses() {
             locations: [
               { code: 'R1-01', name: 'Стеллаж R1-01', capacity: 2000, unit: 'шт' },
               { code: 'R1-02', name: 'Стеллаж R1-02', capacity: 2000, unit: 'шт' },
+              { code: 'R1-03', name: 'Стеллаж R1-03', capacity: 2500, unit: 'шт' },
+            ],
+          },
+          {
+            code: 'ZONE-R2',
+            name: 'Резервная зона 2',
+            locations: [
+              { code: 'R2-01', name: 'Ящик R2-01', capacity: 5000, unit: 'шт' },
+              { code: 'R2-02', name: 'Ящик R2-02', capacity: 5000, unit: 'шт' },
             ],
           },
         ],
@@ -296,6 +404,10 @@ async function importInventory() {
     { skuCode: 'PIPE-50', locationCode: 'A-02', quantity: 1200, reservedQty: 100 },
     { skuCode: 'PIPE-100', locationCode: 'A-04', quantity: 900, reservedQty: 80 },
     { skuCode: 'CHANNEL-100', locationCode: 'A-05', quantity: 450, reservedQty: 50 },
+    { skuCode: 'STEEL-3MM', locationCode: 'A-06', quantity: 2200, reservedQty: 150 },
+    { skuCode: 'STEEL-5MM', locationCode: 'A-07', quantity: 1600, reservedQty: 180 },
+    { skuCode: 'PIPE-50', locationCode: 'A-08', quantity: 1400, reservedQty: 120 },
+    { skuCode: 'ANGLE-50', locationCode: 'A-08', quantity: 520, reservedQty: 40 },
     
     // === ГЛАВНЫЙ СКЛАД - Зона B (Крепеж) ===
     // Разные уровни для демонстрации
@@ -308,6 +420,11 @@ async function importInventory() {
     { skuCode: 'WASHER-M10', locationCode: 'B-04', quantity: 5500, reservedQty: 600 },
     { skuCode: 'SCREW-4X40', locationCode: 'B-04', quantity: 3800, reservedQty: 300 },
     { skuCode: 'SCREW-5X50', locationCode: 'B-05', quantity: 3200, reservedQty: 350 },
+    { skuCode: 'BOLT-M8', locationCode: 'B-06', quantity: 5200, reservedQty: 450 },
+    { skuCode: 'BOLT-M10', locationCode: 'B-06', quantity: 2800, reservedQty: 280 },
+    { skuCode: 'NUT-M8', locationCode: 'B-07', quantity: 4600, reservedQty: 500 },
+    { skuCode: 'WASHER-M10', locationCode: 'B-07', quantity: 6200, reservedQty: 550 },
+    { skuCode: 'SCREW-4X40', locationCode: 'B-08', quantity: 4100, reservedQty: 320 },
     
     // === ГЛАВНЫЙ СКЛАД - Зона C (Инструменты) ===
     { skuCode: 'DRILL-10', locationCode: 'C-01', quantity: 25, reservedQty: 5 },
@@ -317,6 +434,9 @@ async function importInventory() {
     { skuCode: 'WRENCH-19', locationCode: 'C-03', quantity: 16, reservedQty: 3 },
     { skuCode: 'HAMMER-500', locationCode: 'C-03', quantity: 9, reservedQty: 1 },
     { skuCode: 'PLIERS-200', locationCode: 'C-04', quantity: 12, reservedQty: 2 },
+    { skuCode: 'DRILL-10', locationCode: 'C-05', quantity: 28, reservedQty: 4 },
+    { skuCode: 'WRENCH-17', locationCode: 'C-05', quantity: 18, reservedQty: 3 },
+    { skuCode: 'HAMMER-500', locationCode: 'C-06', quantity: 11, reservedQty: 2 },
     
     // === ГЛАВНЫЙ СКЛАД - Зона D (Электрокомпоненты) ===
     { skuCode: 'CABLE-2X2.5', locationCode: 'D-01', quantity: 450, reservedQty: 50 },
@@ -325,17 +445,36 @@ async function importInventory() {
     { skuCode: 'SOCKET-16A', locationCode: 'D-02', quantity: 220, reservedQty: 30 },
     { skuCode: 'BREAKER-25A', locationCode: 'D-03', quantity: 120, reservedQty: 15 },
     { skuCode: 'LED-LAMP-10W', locationCode: 'D-03', quantity: 180, reservedQty: 20 },
+    { skuCode: 'CABLE-2X2.5', locationCode: 'D-04', quantity: 520, reservedQty: 55 },
+    { skuCode: 'SWITCH-10A', locationCode: 'D-04', quantity: 210, reservedQty: 25 },
+    { skuCode: 'BREAKER-25A', locationCode: 'D-05', quantity: 140, reservedQty: 18 },
+    { skuCode: 'LED-LAMP-10W', locationCode: 'D-05', quantity: 195, reservedQty: 22 },
+    
+    // === ГЛАВНЫЙ СКЛАД - Зона E (Упаковка) ===
+    { skuCode: 'BOLT-M8', locationCode: 'E-01', quantity: 2200, reservedQty: 200 },
+    { skuCode: 'BOLT-M10', locationCode: 'E-02', quantity: 1800, reservedQty: 150 },
+    { skuCode: 'NUT-M8', locationCode: 'E-03', quantity: 2400, reservedQty: 250 },
+    { skuCode: 'WASHER-M8', locationCode: 'E-04', quantity: 5500, reservedQty: 400 },
     
     // === СЕВЕРНЫЙ СКЛАД - Зона N1 (Сырье) ===
     { skuCode: 'STEEL-3MM', locationCode: 'N1-01', quantity: 1500, reservedQty: 100 },
     { skuCode: 'STEEL-5MM', locationCode: 'N1-02', quantity: 1200, reservedQty: 150 },
     { skuCode: 'PIPE-50', locationCode: 'N1-03', quantity: 800, reservedQty: 80 },
     { skuCode: 'STEEL-8MM', locationCode: 'N1-01', quantity: 900, reservedQty: 100 },
+    { skuCode: 'PIPE-100', locationCode: 'N1-04', quantity: 750, reservedQty: 70 },
+    { skuCode: 'CHANNEL-100', locationCode: 'N1-05', quantity: 380, reservedQty: 40 },
     
     // === СЕВЕРНЫЙ СКЛАД - Зона N2 (Готовая продукция) ===
     { skuCode: 'PRODUCT-A1', locationCode: 'N2-01', quantity: 85, reservedQty: 10 },
     { skuCode: 'PRODUCT-A2', locationCode: 'N2-02', quantity: 70, reservedQty: 8 },
     { skuCode: 'PRODUCT-B1', locationCode: 'N2-03', quantity: 45, reservedQty: 5 },
+    { skuCode: 'PRODUCT-A1', locationCode: 'N2-04', quantity: 92, reservedQty: 12 },
+    { skuCode: 'PRODUCT-A2', locationCode: 'N2-05', quantity: 68, reservedQty: 7 },
+    
+    // === СЕВЕРНЫЙ СКЛАД - Зона N3 (Комплектующие) ===
+    { skuCode: 'BEARING-6205', locationCode: 'N3-01', quantity: 88, reservedQty: 10 },
+    { skuCode: 'BEARING-6206', locationCode: 'N3-02', quantity: 76, reservedQty: 9 },
+    { skuCode: 'SEAL-40X60', locationCode: 'N3-03', quantity: 108, reservedQty: 12 },
     
     // === ЮЖНЫЙ СКЛАД - Зона S1 (Комплектующие) ===
     { skuCode: 'BEARING-6205', locationCode: 'S1-01', quantity: 90, reservedQty: 10 },
@@ -344,18 +483,55 @@ async function importInventory() {
     { skuCode: 'GASKET-100', locationCode: 'S1-03', quantity: 95, reservedQty: 10 },
     { skuCode: 'BOLT-M8', locationCode: 'S1-02', quantity: 4200, reservedQty: 400 },
     { skuCode: 'NUT-M8', locationCode: 'S1-03', quantity: 4500, reservedQty: 500 },
+    { skuCode: 'BOLT-M10', locationCode: 'S1-04', quantity: 2600, reservedQty: 250 },
+    { skuCode: 'NUT-M10', locationCode: 'S1-05', quantity: 3800, reservedQty: 380 },
+    { skuCode: 'WASHER-M8', locationCode: 'S1-06', quantity: 7200, reservedQty: 600 },
     
     // === ЮЖНЫЙ СКЛАД - Зона S2 (Химические материалы) ===
     { skuCode: 'PAINT-WHITE', locationCode: 'S2-01', quantity: 180, reservedQty: 20 },
     { skuCode: 'PAINT-BLACK', locationCode: 'S2-01', quantity: 120, reservedQty: 15 },
     { skuCode: 'SOLVENT', locationCode: 'S2-02', quantity: 160, reservedQty: 20 },
     { skuCode: 'PRIMER', locationCode: 'S2-02', quantity: 110, reservedQty: 10 },
+    { skuCode: 'PAINT-WHITE', locationCode: 'S2-03', quantity: 195, reservedQty: 22 },
+    { skuCode: 'SOLVENT', locationCode: 'S2-04', quantity: 145, reservedQty: 18 },
     
-    // === РЕЗЕРВНЫЙ СКЛАД ===
+    // === ЮЖНЫЙ СКЛАД - Зона S3 (Металлообработка) ===
+    { skuCode: 'STEEL-3MM', locationCode: 'S3-01', quantity: 1100, reservedQty: 90 },
+    { skuCode: 'STEEL-5MM', locationCode: 'S3-02', quantity: 1350, reservedQty: 140 },
+    { skuCode: 'PIPE-50', locationCode: 'S3-03', quantity: 920, reservedQty: 85 },
+    
+    // === ВОСТОЧНЫЙ СКЛАД - Зона E1 (Крепеж) ===
+    { skuCode: 'BOLT-M8', locationCode: 'E1-01', quantity: 5800, reservedQty: 550 },
+    { skuCode: 'BOLT-M10', locationCode: 'E1-02', quantity: 3200, reservedQty: 320 },
+    { skuCode: 'BOLT-M12', locationCode: 'E1-03', quantity: 2100, reservedQty: 210 },
+    { skuCode: 'NUT-M8', locationCode: 'E1-04', quantity: 5200, reservedQty: 520 },
+    
+    // === ВОСТОЧНЫЙ СКЛАД - Зона E2 (Инструменты) ===
+    { skuCode: 'DRILL-10', locationCode: 'E2-01', quantity: 32, reservedQty: 6 },
+    { skuCode: 'DRILL-12', locationCode: 'E2-02', quantity: 26, reservedQty: 4 },
+    { skuCode: 'WRENCH-17', locationCode: 'E2-03', quantity: 22, reservedQty: 4 },
+    
+    // === ЗАПАДНЫЙ СКЛАД - Зона W1 (Универсальная) ===
+    { skuCode: 'STEEL-3MM', locationCode: 'W1-01', quantity: 1650, reservedQty: 120 },
+    { skuCode: 'STEEL-5MM', locationCode: 'W1-02', quantity: 1450, reservedQty: 160 },
+    { skuCode: 'PIPE-50', locationCode: 'W1-03', quantity: 1050, reservedQty: 95 },
+    { skuCode: 'STEEL-8MM', locationCode: 'W1-04', quantity: 1150, reservedQty: 110 },
+    
+    // === ЗАПАДНЫЙ СКЛАД - Зона W2 (Электро) ===
+    { skuCode: 'CABLE-2X2.5', locationCode: 'W2-01', quantity: 580, reservedQty: 60 },
+    { skuCode: 'CABLE-3X1.5', locationCode: 'W2-02', quantity: 620, reservedQty: 65 },
+    { skuCode: 'SWITCH-10A', locationCode: 'W2-03', quantity: 240, reservedQty: 28 },
+    
+    // === РЕЗЕРВНЫЙ СКЛАД - Зона R1 ===
     { skuCode: 'BOLT-M8', locationCode: 'R1-01', quantity: 1500, reservedQty: 0 },
     { skuCode: 'BOLT-M10', locationCode: 'R1-01', quantity: 1200, reservedQty: 0 },
     { skuCode: 'STEEL-3MM', locationCode: 'R1-02', quantity: 800, reservedQty: 0 },
     { skuCode: 'CABLE-2X2.5', locationCode: 'R1-02', quantity: 200, reservedQty: 0 },
+    { skuCode: 'NUT-M8', locationCode: 'R1-03', quantity: 1800, reservedQty: 0 },
+    
+    // === РЕЗЕРВНЫЙ СКЛАД - Зона R2 ===
+    { skuCode: 'WASHER-M8', locationCode: 'R2-01', quantity: 3200, reservedQty: 0 },
+    { skuCode: 'WASHER-M10', locationCode: 'R2-02', quantity: 2800, reservedQty: 0 },
   ]
 
   const result = await apiRequest('/inventory', 'POST', { data: inventoryData })

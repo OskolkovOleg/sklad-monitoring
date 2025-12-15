@@ -9,6 +9,7 @@ interface DashboardFiltersProps {
   sort: SortParams
   onFiltersChange: (filters: FilterParams) => void
   onSortChange: (sort: SortParams) => void
+  currentLevel: 'warehouse' | 'zone' | 'location' | 'sku'
 }
 
 export function DashboardFilters({
@@ -16,6 +17,7 @@ export function DashboardFilters({
   sort,
   onFiltersChange,
   onSortChange,
+  currentLevel,
 }: DashboardFiltersProps) {
   const [warehouses, setWarehouses] = useState<{ id: string; name: string; code: string }[]>([])
   const [zones, setZones] = useState<{ id: string; name: string; code: string }[]>([])
@@ -105,7 +107,8 @@ export function DashboardFilters({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Multi-select Склады */}
+        {/* Multi-select Склады - скрываем на уровне warehouse
+        {/* {currentLevel !== 'warehouse' && (
         <div className="relative">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Склады
@@ -120,9 +123,9 @@ export function DashboardFilters({
                 : `Выбрано: ${selectedWarehouses.length}`}
             </span>
             <ChevronDown className="w-4 h-4 text-gray-400" />
-          </button>
+          </button> */}
           
-          {showWarehouseDropdown && (
+          {/* {showWarehouseDropdown && (
             <>
               <div
                 className="fixed inset-0 z-10"
@@ -143,12 +146,14 @@ export function DashboardFilters({
                     <span className="text-sm text-gray-700">{wh.name}</span>
                   </label>
                 ))}
-              </div>
-            </>
-          )}
-        </div>
+              </div> */}
+            {/* </> */}
+          {/* )} */}
+        {/* </div>
+        )} */}
 
-        {/* Зона */}
+        {/* Зона - скрываем на уровне warehouse и zone */}
+        {/* {currentLevel !== 'warehouse' && currentLevel !== 'zone' && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Зона
@@ -166,8 +171,8 @@ export function DashboardFilters({
                 {zone.name}
               </option>
             ))}
-          </select>
-        </div>
+          </select>)} */}
+        {/* </div>         */}
 
         {/* Категория */}
         <div>
